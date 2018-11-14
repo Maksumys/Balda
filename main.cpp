@@ -35,7 +35,7 @@ int main() {
 
 	server.default_resource["GET"] = [](shared_ptr<HttpServer::Response> response, shared_ptr<HttpServer::Request> request) {
 		try {
-			auto web_root_path = boost::filesystem::canonical("web");
+			auto web_root_path = boost::filesystem::canonical("../web");
 			auto path = boost::filesystem::canonical(web_root_path / request->path);
 
 			if(distance(web_root_path.begin(), web_root_path.end()) > distance(path.begin(), path.end()) ||

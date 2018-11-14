@@ -1,0 +1,124 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru-ru" lang="ru-ru">
+<head>
+<meta name="keywords" content="Балда" />
+<!-- <link href="favicon3.ico" rel="shortcut icon" type="image/x-icon" />-->
+
+<link rel="stylesheet" href="css/style.css" type="text/css" />
+
+
+<link href="https://fonts.googleapis.com/css?family=Play" rel="stylesheet">
+<!-- <link rel='stylesheet' media='(min-width: 1600px)' href='css/style3(1).css' />
+<link rel='stylesheet' media='(max-width: 1599px) and (min-width: 1000px)' href='css/style3.css' />
+<link rel='stylesheet' media='(max-width: 999px)' href='css/style3(2).css' /> -->
+
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Балда</title>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script src="WOW.js"></script>
+<!-- <script>new WOW().init();</script>
+<script src="script.js"></script>-->
+<script>
+window.onload = function(){ 
+ 
+    function timer(){
+ 
+        <!--var hour = document.getElementById('hour').innerHTML; -- >
+        var minute = document.getElementById('minute').innerHTML;
+        var second = document.getElementById('second').innerHTML;
+        var end = false;
+         
+        if( second > 0 ) second--;
+        else{
+            second = 59;
+            
+            if( minute > 0 ) minute--;
+            else{
+                second = 59;
+                end = true;
+                <!--if( hour > 0 ) hour--; -->
+                <!--else end = true;-->
+            }
+        }
+ 
+        if(end){
+            clearInterval(intervalID);
+			minute = 1;
+			second = 30;
+            timer();
+        }else{
+            <!--document.getElementById('hour').innerHTML = hour;-->
+            document.getElementById('minute').innerHTML = minute;
+            document.getElementById('second').innerHTML = second;
+        }
+    }
+    window.intervalID = setInterval(timer, 1000);
+}
+</script>
+<style>
+#timer{
+margin: 20px auto;
+text-align: center;
+color: #333;
+font-family: fantasy;
+font-size: 100px;
+cursor: default;
+}
+ 
+#timer div{
+display: inline;
+}
+
+#pole{
+width: 500px;
+height: 500px;
+margin: 20px auto;
+text-align: center;
+<!--border:  2px #000 solid;-->
+}
+
+#kletka{
+width: 90px;
+height: 90px;
+border:  2px #000 solid;
+float:right;
+}
+#letter{
+font:bold 70px Play;
+}
+</style>
+</head>
+<body>
+	    <div id="timer">
+        <!--<div id="hour">11</div>&nbsp;: -->
+        <div id="minute">1</div>&nbsp;:
+        <div id="second">30</div>
+    </div>
+	<div id="pole">
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"><span id="letter">О</span></div>
+		<div id="kletka"><span id="letter">В</span></div>
+		<div id="kletka"><span id="letter">О</span></div>
+		<div id="kletka"><span id="letter">Л</span></div>
+		<div id="kletka"><span id="letter">С</span></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+		<div id="kletka"></div>
+	</div>
+</body>
+</html>
