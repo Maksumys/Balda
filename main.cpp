@@ -38,11 +38,39 @@ public:
 	}
 };
 
+Command get_cmd( nlohmann::json &json_req )
+{
+	Command cmd;
+
+	if( !json_req.count( "command" ) )
+		throw server_exception( "command not found!" );
+	if( !json_req[ "command" ].count( "id" ) )
+		throw server_exception( "id command not found!" );
+	if( !json_req[ "command" ].count( "state" ) )
+		throw server_exception( "state command not found!" );
+
+	cmd.id = json_req[ "command" ][ "id" ].get<std::uint64_t >();
+	cmd.state = json_req[ "command" ][ "state" ].get<std::uint64_t >();
+
+	return cmd;
+}
+
+std::map< boost::uuids::uuid, std::chrono::steady_clock::time_point > sessions;
+
 int main() {
 
 	HttpServer server;
 	server.config.port = 8080;
 
+	bool exit{ false };
+
+
+	std::thread sessions_check( [ & ](){
+		while( !exit )
+		{
+
+		}
+	} );
 
 	server.default_resource["POST"] = [](shared_ptr<HttpServer::Response> response, shared_ptr<HttpServer::Request> request) {
 		try
@@ -51,23 +79,16 @@ int main() {
 
 			std::cout << json_req << std::endl;
 
-			Command cmd;
-
-			if( !json_req.count( "command" ) )
-				throw server_exception( "command not found!" );
-			if( !json_req[ "command" ].count( "id" ) )
-				throw server_exception( "id command not found!" );
-			if( !json_req[ "command" ].count( "state" ) )
-				throw server_exception( "state command not found!" );
-
-			cmd.id = json_req[ "command" ][ "id" ].get<std::uint64_t >();
-			cmd.state = json_req[ "command" ][ "state" ].get<std::uint64_t >();
+			auto cmd = get_cmd( json_req );
 
 			if( cmd.id == 1 )
 			{
 				if( cmd.state == 1 )
 				{
 					boost::uuids::uuid uuid = boost::uuids::random_generator()();
+
+					sessions[ uuid ] = std::chrono::steady_clock::now();
+
 					json json_response = { "command:",
 					   					{
 											{ "id", "1" },
@@ -146,4 +167,6 @@ int main() {
 	});
 
 	server_thread.join();
+	exit = true;
+	sessions_check.join();
 }
