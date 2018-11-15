@@ -1,5 +1,5 @@
 $(document).ready(function (){
-    var request = [{ id: 1, state: 2 }];
+    var request = { id: 1, state: 1 };
 
     $.ajax({
         url: '/',
