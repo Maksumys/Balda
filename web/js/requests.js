@@ -7,19 +7,17 @@ $(document).ready(function (){
         data: JSON.stringify({ command: request }),
         dataType: "json",
         success: function( data ) {
-            alert( JSON.stringify( data ) );
-            responseT(JSON.stringify( data ));
-        },
+
+                    alert( JSON.stringify( data ) );
+					responseT(JSON.stringify( data ));
+                },
         failure: function( errMsg ) {
             alert(errMsg);
         }
     });
-
     function responseT(responseText) {
         var str = JSON.parse(responseText);
         var logDiv = document.getElementById("log");
         logDiv.innerText += str.uuid+"\n";
     }
-
-
 });
