@@ -66,7 +66,7 @@ int main() {
 
 
 	std::thread sessions_check( [ & ](){
-		while( !exit )
+		//while( !exit )
 		{
 
 		}
@@ -90,12 +90,13 @@ int main() {
 					sessions[ uuid ] = std::chrono::steady_clock::now();
 
 					json json_response = { "command:",
-					   					{
-											{ "id", "1" },
-											{ "state", 2 },
-											{ "uuid", boost::uuids::to_string( uuid ) }
-					   					}
-									};
+                                            {
+                                                { "id", "1" },
+                                                { "state", 2 },
+                                                { "uuid", boost::uuids::to_string( uuid ) }
+                                            }
+									     };
+					std::cout << json_response << std::endl;
 					response->write( json_response.dump() );
 				} else
 					throw server_exception( "state error!" );
