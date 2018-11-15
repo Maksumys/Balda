@@ -8,7 +8,8 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-#include "json.hpp"
+#include "src/json.hpp"
+#include "src/logger.hpp"
 
 #include <algorithm>
 #include <fstream>
@@ -57,18 +58,27 @@ Command get_cmd( nlohmann::json &json_req )
 
 std::map< boost::uuids::uuid, std::chrono::steady_clock::time_point > sessions;
 
-int main() {
+int main()
+{
+    logger_initialize();
 
 	HttpServer server;
 	server.config.port = 8080;
+
+    BOOST_LOG_TRIVIAL( info ) << "Initialize server address: " << server.config.address
+                              << " port: " << server.config.port;
 
 	bool exit{ false };
 
 
 	std::thread sessions_check( [ & ](){
-		//while( !exit )
+		while( !exit )
 		{
+		    for( auto &session : sessions )
+            {
 
+            }
+		    std::this_thread::sleep_for( 1s );
 		}
 	} );
 
@@ -77,15 +87,17 @@ int main() {
 		{
 			auto json_req = json::parse( request->content.string() );
 
-			std::cout << json_req << std::endl;
+            BOOST_LOG_TRIVIAL( debug ) << "Post request: " << json_req;
 
-			auto cmd = get_cmd( json_req );
+            auto cmd = get_cmd( json_req );
 
 			if( cmd.id == 1 )
 			{
 				if( cmd.state == 1 )
 				{
 					boost::uuids::uuid uuid = boost::uuids::random_generator()();
+
+                    BOOST_LOG_TRIVIAL( debug ) << "Generate session: " << uuid;
 
 					sessions[ uuid ] = std::chrono::steady_clock::now();
 
@@ -96,7 +108,7 @@ int main() {
                                                 { "uuid", boost::uuids::to_string( uuid ) }
                                             } }
 									     };
-					std::cout << json_response << std::endl;
+
 					response->write( json_response.dump() );
 				} else
 					throw server_exception( "state error!" );
@@ -104,6 +116,7 @@ int main() {
 				throw server_exception( "id error!" );
 		} catch( const std::exception &ex )
 		{
+            BOOST_LOG_TRIVIAL( error ) << "Post request error: " << ex.what( );
 			response->write( SimpleWeb::StatusCode::client_error_bad_request, ex.what( ) );
 		}
 	};
