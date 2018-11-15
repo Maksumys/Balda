@@ -1,21 +1,18 @@
-#include <simple-web-server/client_https.hpp>
 #include <simple-web-server/server_https.hpp>
-
-#define BOOST_SPIRIT_THREADSAFE
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
-
 #include <simple-web-server/crypto.hpp>
-#include <algorithm>
+
 #include <boost/filesystem.hpp>
+
+#include "json.hpp"
+
+#include <algorithm>
 #include <fstream>
 #include <vector>
 
 using namespace std;
-using namespace boost::property_tree;
 
 using HttpServer = SimpleWeb::Server<SimpleWeb::HTTP>;
-using HttpClient = SimpleWeb::Client<SimpleWeb::HTTP>;
+using json = nlohmann::json;
 
 int main() {
 
@@ -26,7 +23,9 @@ int main() {
 	server.default_resource["POST"] = [](shared_ptr<HttpServer::Response> response, shared_ptr<HttpServer::Request> request) {
 		try
 		{
-			request->content.string();
+            auto j3 = json::parse( request->content.string() );
+            response->write( j3.dump() );
+            std::cout << j3 << std::endl;
 		} catch( ... )
 		{
 
