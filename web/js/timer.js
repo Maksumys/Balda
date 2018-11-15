@@ -1,5 +1,4 @@
 window.onload = function(){
-
     function timer(){
         var minute = document.getElementById('minute').innerHTML;
         var second = document.getElementById('second').innerHTML;
@@ -17,9 +16,12 @@ window.onload = function(){
         }
 
         if(end){
-            clearInterval(intervalID);
+            //clearInterval(intervalID);
             minute = 1;
             second = 30;
+			document.getElementById('minute').innerHTML = minute;
+            document.getElementById('second').innerHTML = second;
+			end = false;
             timer();
         }else{
             document.getElementById('minute').innerHTML = minute;
