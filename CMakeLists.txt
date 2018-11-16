@@ -9,6 +9,7 @@ find_package(Boost COMPONENTS system filesystem thread regex log)
 find_package(OpenSSL)
 
 add_executable(balda main.cpp src/logger.cpp)
+add_executable(daemon src/daemon.cpp src/daemon.h)
 
 target_include_directories(balda PUBLIC ${Boost_INCLUDE_DIR} ${OPENSSL_INCLUDE_DIR} ${CMAKE_SOURCE_DIR})
 target_link_libraries(balda ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} -lpthread)
