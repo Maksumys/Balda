@@ -11,6 +11,6 @@
 #include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/utility/setup/console.hpp>
 
-void logger_initialize();
+void logger_initialize( const std::string & );
 
 #endif //BALDA_LOGGER_HPP
