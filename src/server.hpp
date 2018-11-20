@@ -51,6 +51,42 @@ Command get_cmd( nlohmann::json &json_req )
 	return cmd;
 }
 
+class game
+{
+	class cell
+	{
+	public:
+		std::string ch;
+	};
+public:
+	game( const boost::uuids::uuid &__player1, const boost::uuids::uuid &__player2 ) {
+		player1 = __player1;
+		player2 = __player2;
+
+		field.reserve( 5 );
+		field.resize( 5 );
+
+		for( auto &line : field ) {
+			field.reserve( 5 );
+			field.resize( 5 );
+		}
+	}
+
+	///TODO:
+	void generate_word( ) {
+		field[ 2 ][ 0 ].ch = "Д";
+		field[ 2 ][ 1 ].ch = "O";
+		field[ 2 ][ 2 ].ch = "Ш";
+		field[ 2 ][ 3 ].ch = "И";
+		field[ 2 ][ 4 ].ch = "К";
+	}
+
+	boost::uuids::uuid player1;
+	boost::uuids::uuid player2;
+
+	std::vector< std::vector< cell > > field;
+};
+
 class server
 {
 public:
@@ -78,39 +114,26 @@ public:
 
 		http_server.default_resource["POST"] = [&](std::shared_ptr<HttpServer::Response> response,
 												  std::shared_ptr<HttpServer::Request> request) {
-			try
-			{
+			try {
 				auto json_req = json::parse( request->content.string() );
+				json json_response;
 
 				BOOST_LOG_TRIVIAL( debug ) << "Post request: " << json_req;
 
 				auto cmd = get_cmd( json_req );
 
-				if( cmd.id == 1 )
-				{
-					if( cmd.state == 1 )
-					{
-						boost::uuids::uuid uuid = boost::uuids::random_generator()();
-
-						BOOST_LOG_TRIVIAL( debug ) << "Generate session: " << uuid;
-
-						sessions[ uuid ] = std::chrono::steady_clock::now();
-
-						json json_response = { { "command",
-													   {
-															   { "id", 1 },
-															   { "state", 2 },
-															   { "uuid", boost::uuids::to_string( uuid ) }
-													   } }
-						};
-
-						response->write( json_response.dump() );
-					} else
-						throw server_exception( "state error!" );
-				} else
+				if( cmd.id == 1 ) {
+					json_response = event_login( cmd.state );
+				}
+				else if( cmd.id == 2 ) {
+					json_response = event_start_game( cmd.state );
+				}
+				else
 					throw server_exception( "id error!" );
-			} catch( const std::exception &ex )
-			{
+
+				response->write( json_response.dump() );
+
+			} catch( const std::exception &ex ) {
 				BOOST_LOG_TRIVIAL( error ) << "Post request error: " << ex.what( );
 				response->write( SimpleWeb::StatusCode::client_error_bad_request, ex.what( ) );
 			}
@@ -128,7 +151,6 @@ public:
 					path /= "index.html";
 
 				SimpleWeb::CaseInsensitiveMultimap header;
-
 
 				auto ifs = std::make_shared<std::ifstream>();
 				ifs->open(path.string(), std::ifstream::in | std::ios::binary | std::ios::ate);
@@ -172,9 +194,49 @@ public:
 		};
 
 		server_thread = std::move( std::thread( [&]()
-												{
-													http_server.start();
-												} ) );
+							{
+								http_server.start();
+							} ) );
+	}
+
+	json event_login( std::uint64_t state )
+	{
+		if( state == 1 )
+		{
+			boost::uuids::uuid uuid = boost::uuids::random_generator()();
+
+			BOOST_LOG_TRIVIAL( debug ) << "Generate session: " << uuid;
+
+			sessions[ uuid ] = std::chrono::steady_clock::now();
+
+			return { { "command",
+						   {
+							   { "id", 1 },
+							   { "state", 2 },
+							   { "uuid", boost::uuids::to_string( uuid ) }
+						   } } };
+		} else
+			throw server_exception( "state error!" );
+	}
+
+	json event_start_game( std::uint64_t state )
+	{
+		if( state == 1 )
+		{
+			auto uuid = boost::uuids::random_generator()();
+
+			BOOST_LOG_TRIVIAL( debug ) << "Generate game: " << uuid;
+
+			sessions[ uuid ] = std::chrono::steady_clock::now();
+
+			return { { "command",
+							 {
+									 { "id", 1 },
+									 { "state", 2 },
+									 { "uuid", boost::uuids::to_string( uuid ) }
+							 } } };
+		} else
+			throw server_exception( "state error!" );
 	}
 
 	~server()

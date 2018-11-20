@@ -24,7 +24,7 @@ window.onload = function () {
 
         methods: {
             runGame: function (event) {
-                var req = {command: {id: 2, state: 1}};
+                var req = {command: {id: 2, state: 1, uuid1: this.$refs.my_uuid, uuid2: this.$refs.my_uuid }};
 
                 var uuid_game;
 
