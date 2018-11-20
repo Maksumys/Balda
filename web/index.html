@@ -8,24 +8,29 @@
 		<link href="https://fonts.googleapis.com/css?family=Play" rel="stylesheet">
 
 		<link rel="stylesheet" href="css/style.css" type="text/css" />
-
+		<link rel="stylesheet" href="css/button_style.css" type="text/css" />
+		<link rel="stylesheet" href="css/text_uuid_style.css" type="text/css" />
+		
 		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <!--		<script type="text/javascript" src="js/smoke.js"></script> -->
 		<script type="text/javascript" src="js/timer.js"></script>
-        <script type="text/javascript" src="js/requests.js"></script>
+		<script type="text/javascript" src="js/requests.js"></script>
+		<script src="https://d3js.org/d3.v5.js"></script>
+
+		<!--Fonts -->
+		<link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700' rel='stylesheet' type='text/css'>
 	</head>
-
     <body>
+	<h1 id="my_uuid" data-shadow=""></h1>
+	<input type="text" id="log" size="40">
+	<a href="javascript:void(0);" id="uuid_button">Run game!</a>
 
-        <div id="wrap">
-            <div id="viewport">
-                <div class="tv">
-                    <div class="screen mute" id="tv">
-                    </div>
-                </div>
-            </div>
-        </div>
-	    <div id="timer">
+
+	<!-- OTHER PAGE ? -->
+
+	<!--	<div id="log"></div>
+		<div id="game">
+	   <div id="timer">
             <div id="minute">
                 1
             </div>
@@ -73,6 +78,7 @@
             <div id="kletka"></div>
             <div id="kletka"></div>
 	    </div>
-		<div id="log"></div>
+		
+		</div> -->
     </body>
 </html>

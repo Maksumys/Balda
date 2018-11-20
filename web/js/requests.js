@@ -1,4 +1,5 @@
-$(document).ready(function (){
+$(document).ready(function ()
+{
     var request = { id: 1, state: 1 };
 
     $.ajax({
@@ -7,8 +8,8 @@ $(document).ready(function (){
         data: JSON.stringify({ command: request }),
         dataType: "json",
         success: function( data ) {
-                    alert( JSON.stringify( data ) );
-					responseT(data);
+		    //alert( JSON.stringify( data ) );
+		    responseT(data);
                 },
         failure: function( errMsg ) {
             alert(errMsg);
@@ -16,7 +17,8 @@ $(document).ready(function (){
     });
     function responseT(responseText) {
         var str = JSON.parse(JSON.stringify( responseText ));
-        var logDiv = document.getElementById("log");
-        logDiv.innerText += str["command"]["uuid"]+"\n";
+        var uuid_h1 = document.getElementById("my_uuid");
+        uuid_h1.innerHTML += str["command"]["uuid"];
+	uuid_h1.setAttribute("data-shadow", str["command"]["uuid"]);
     }
 });
