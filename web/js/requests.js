@@ -32,7 +32,7 @@ window.onload = function () {
                     response => {
                         if( ( !response.data.includes("command") ) ||
                               !response.data[ "command" ].includes( "uuid_game" ) ) {
-                            alert( "Post request error!" );
+                            console.log( "Post request error!" );
                         }
                         uuid_game = response.data[ "command" ][ "uuid_game" ]
                     }
