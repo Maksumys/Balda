@@ -7,12 +7,42 @@ window.onload = function () {
                 info: null
             };
         },
-        mounted: function () {
+        created: function () {
             var req = {command: {id: 1, state: 1}};
 
             axios.post('/', req).then(
                 response => ( this.info = response.data[ "command" ][ "uuid" ] )
-            )
-        } } );
+            ).catch((error) => {
+                if( error.response ){
+                    console.log(error.response.data); // => the response payload
+                }});
+        }
+    } );
 
+    new Vue( {
+        el: '#run_game',
+
+        methods: {
+            runGame: function (event) {
+                var req = {command: {id: 2, state: 1}};
+
+                var uuid_game;
+
+                axios.post('/', req).then(
+                    response => {
+                        if( ( !response.data.includes("command") ) ||
+                              !response.data[ "command" ].includes( "uuid_game" ) ) {
+                            alert( "Post request error!" );
+                        }
+                        uuid_game = response.data[ "command" ][ "uuid_game" ]
+                    }
+                ).catch((error) => {
+                    if( error.response ){
+                        console.log(error.response.data); // => the response payload
+                    }});
+                // отображает таймер и клетки игры, все остальное скрываем или вообще другую
+                // страницу открываем, хз
+            }
+        }
+    });
 };

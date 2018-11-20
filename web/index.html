@@ -25,8 +25,11 @@
 	<h1 id="my_uuid" data-shadow=""> {{ info }} </h1>
 
 	<input type="text" id="log" size="40">
-	<a href="javascript:void(0);" id="uuid_button">Run game!</a>
 
+
+	<div id="run_game">
+	    <a @click="runGame">Run game!</a>
+    </div>
 
 	<!-- OTHER PAGE ? -->
 
