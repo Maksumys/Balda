@@ -10,18 +10,20 @@
 		<link rel="stylesheet" href="css/style.css" type="text/css" />
 		<link rel="stylesheet" href="css/button_style.css" type="text/css" />
 		<link rel="stylesheet" href="css/text_uuid_style.css" type="text/css" />
-		
-		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-<!--		<script type="text/javascript" src="js/smoke.js"></script> -->
-		<script type="text/javascript" src="js/timer.js"></script>
-		<script type="text/javascript" src="js/requests.js"></script>
-		<script src="https://d3js.org/d3.v5.js"></script>
 
-		<!--Fonts -->
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.js"></script>
+<!--		<script type="text/javascript" src="js/smoke.js"></script> -->
+<!--		<script type="text/javascript" src="js/timer.js"></script> -->
+		<script type="text/javascript" src="js/requests.js"></script>
+
 		<link href='http://fonts.googleapis.com/css?family=Yanone+Kaffeesatz:700' rel='stylesheet' type='text/css'>
 	</head>
+
     <body>
-	<h1 id="my_uuid" data-shadow=""></h1>
+
+	<h1 id="my_uuid" data-shadow=""> {{ info }} </h1>
+
 	<input type="text" id="log" size="40">
 	<a href="javascript:void(0);" id="uuid_button">Run game!</a>
 
@@ -78,7 +80,7 @@
             <div id="kletka"></div>
             <div id="kletka"></div>
 	    </div>
-		
+
 		</div> -->
     </body>
 </html>
