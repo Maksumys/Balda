@@ -64,6 +64,8 @@ class game
 		std::string ch;
 	};
 public:
+	game() = default;
+
 	game( const boost::uuids::uuid &__player1, const boost::uuids::uuid &__player2 ) {
 
         uuid = boost::uuids::random_generator()();
