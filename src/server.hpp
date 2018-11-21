@@ -16,13 +16,18 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
+#include <boost/asio.hpp>
+#include <boost/asio/post.hpp>
+#include <boost/asio/thread_pool.hpp>
 
 #include "src/json.hpp"
 #include "src/logger.hpp"
+#include "src/balda.hpp"
 
 #include <algorithm>
 #include <fstream>
 #include <vector>
+#include <mutex>
 
 using HttpServer = SimpleWeb::Server<SimpleWeb::HTTP>;
 using json = nlohmann::json;
@@ -113,8 +118,6 @@ class server
 public:
 	server()
 	{
-		using std::chrono_literals::operator""s;
-
 		logger_initialize( "balda" );
 
 		http_server.config.port = 8080;
@@ -122,20 +125,72 @@ public:
 		BOOST_LOG_TRIVIAL( info ) << "Initialize server address: " << http_server.config.address
 								  << " port: " << http_server.config.port;
 
-		sessions_check = std::move( std::thread( [ & ](){
-			while( !exit )
-			{
-				for( auto &session : sessions )
-				{
+		boost::asio::post( pool,
+		[ & ]( ) {
+			using std::chrono::duration_cast;
+			using std::chrono::steady_clock;
+			using std::chrono::seconds;
+			using std::chrono_literals::operator""ms;
 
+			while( !exit ) {
+				{
+					std::lock_guard< std::mutex > sessions_lock( sessions_mutex );
+					for(auto session = sessions.begin(); session != sessions.end(); )
+					{
+						auto now = steady_clock::now();
+						auto interval = duration_cast< seconds >( now - session->second );
+
+						if( interval > SESSIONS_TIMEOUT_LIMIT ) {
+							BOOST_LOG_TRIVIAL( info ) << "Session disconnect timeout: " <<
+							boost::lexical_cast< boost::uuids::uuid >( session->first );
+							session = sessions.erase(session);
+						}
+						else
+							++session;
+					}
 				}
-				std::this_thread::sleep_for( 1s );
+				std::this_thread::sleep_for( 10000ms );
 			}
-		} ) );
+		} );
+
+		boost::asio::post( pool,
+		[ & ]( ) {
+			using std::chrono::duration_cast;
+			using std::chrono::steady_clock;
+			using std::chrono::seconds;
+			using std::chrono_literals::operator""ms;
+			using boost::lexical_cast;
+			using boost::uuids::uuid;
+
+			while( !exit ) {
+				{
+					std::lock( games_mutex, sessions_mutex );
+					std::lock_guard< std::mutex > games_lock( games_mutex, std::adopt_lock );
+					std::lock_guard< std::mutex > sessions_lock( sessions_mutex, std::adopt_lock );
+					for( auto game = games.begin(); game != games.end(); )
+					{
+						if( sessions.count( game->second.player1 ) == 0 ) {
+							BOOST_LOG_TRIVIAL( info ) << "Game disconnect timeout from user: "
+													  << lexical_cast< uuid >( game->second.player1 );
+							game = games.erase( game );
+						}
+						else if( sessions.count( game->second.player2 ) == 0 ) {
+							BOOST_LOG_TRIVIAL( info ) << "Game disconnect timeout from user: "
+													  << lexical_cast< uuid >( game->second.player2 );
+							game = games.erase( game );
+						}
+						else
+							++game;
+					}
+				}
+				std::this_thread::sleep_for( 10000ms );
+			}
+		} );
 
 		http_server.default_resource["POST"] = [&](std::shared_ptr<HttpServer::Response> response,
 												  std::shared_ptr<HttpServer::Request> request) {
 			try {
+
 				auto json_req = json::parse( request->content.string() );
 				json json_response;
 
@@ -228,10 +283,9 @@ public:
 		http_server.on_error = [](std::shared_ptr<HttpServer::Request> /*request*/, const SimpleWeb::error_code & /*ec*/) {
 		};
 
-		server_thread = std::move( std::thread( [&]()
-							{
-								http_server.start();
-							} ) );
+		boost::asio::post(pool, [ & ]( ) {
+			http_server.start();
+		});
 	}
 
 	json event_login( std::uint64_t state )
@@ -279,20 +333,22 @@ public:
 
 	~server()
 	{
-		server_thread.join();
 		exit = true;
-		sessions_check.join();
+		pool.join();
 	}
 
 protected:
 	HttpServer http_server;
 
 	std::map< boost::uuids::uuid, std::chrono::steady_clock::time_point > sessions;
+	std::mutex sessions_mutex;
+
 	std::map< boost::uuids::uuid, game > games;
+	std::mutex games_mutex;
 
 
-	std::thread sessions_check;
-	std::thread server_thread;
+
+	boost::asio::thread_pool pool{ 4 };
 
 	bool exit{ false };
 };
