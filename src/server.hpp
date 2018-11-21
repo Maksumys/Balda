@@ -313,6 +313,10 @@ public:
 	{
 		if( state == 1 )
 		{
+			std::lock( sessions_mutex, games_mutex );
+			std::lock_guard< std::mutex > sessions_lock( sessions_mutex, std::adopt_lock );
+			std::lock_guard< std::mutex > games_lock( games_mutex, std::adopt_lock );
+
 			if( ( sessions.count( uuid1 ) < 1 ) && ( sessions.count( uuid2 ) < 1 ) )
                 throw server_exception( "Sessions not found" );
 
@@ -321,13 +325,15 @@ public:
 
             game new_game( uuid1, uuid2 );
 
+            games[ new_game.uuid ] = new_game;
+
 			return { { "command",
-							 {
-									 { "id", 1 },
-									 { "state", 2 },
-									 { "game_uuid", boost::uuids::to_string( new_game.uuid ) },
-                                     { "field", new_game.field_string() }
-							 } } };
+						 {
+								 { "id", 1 },
+								 { "state", 2 },
+								 { "game_uuid", boost::uuids::to_string( new_game.uuid ) },
+								 { "field", new_game.field_string() }
+						 } } };
 		} else
 			throw server_exception( "state error!" );
 	}
