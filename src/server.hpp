@@ -60,6 +60,9 @@ class game
 	};
 public:
 	game( const boost::uuids::uuid &__player1, const boost::uuids::uuid &__player2 ) {
+
+        uuid = boost::uuids::random_generator()();
+
 		player1 = __player1;
 		player2 = __player2;
 
@@ -67,9 +70,11 @@ public:
 		field.resize( 5 );
 
 		for( auto &line : field ) {
-			field.reserve( 5 );
-			field.resize( 5 );
+            line.reserve( 5 );
+            line.resize( 5 );
 		}
+
+        generate_word();
 	}
 
 	///TODO:
@@ -81,8 +86,24 @@ public:
 		field[ 2 ][ 4 ].ch = "К";
 	}
 
+	std::string field_string() {
+
+	    std::string str;
+
+	    for( const auto &line : field )
+	        for( const auto &elem : line )
+	            if( elem.ch.empty() )
+	                str += "0";
+	            else
+	                str += elem.ch;
+
+        return str;
+    }
+
 	boost::uuids::uuid player1;
 	boost::uuids::uuid player2;
+
+	boost::uuids::uuid uuid;
 
 	std::vector< std::vector< cell > > field;
 };
@@ -126,7 +147,21 @@ public:
 					json_response = event_login( cmd.state );
 				}
 				else if( cmd.id == 2 ) {
-					json_response = event_start_game( cmd.state );
+
+                    if( !json_req.count( "command" ) )
+                        throw server_exception( "command not found!" );
+                    if( !json_req[ "command" ].count( "id" ) )
+                        throw server_exception( "id command not found!" );
+                    if( !json_req[ "command" ].count( "state" ) )
+                        throw server_exception( "state command not found!" );
+                    if( !json_req[ "command" ].count( "uuid1" ) )
+                        throw server_exception( "uuid1 command not found!" );
+                    if( !json_req[ "command" ].count( "uuid2" ) )
+                        throw server_exception( "uuid2 command not found!" );
+
+					json_response = event_start_game( boost::lexical_cast< boost::uuids::uuid >( json_req[ "command" ][ "uuid1" ].get<std::string>() ),
+                                                      boost::lexical_cast< boost::uuids::uuid >( json_req[ "command" ][ "uuid2" ].get<std::string>() ),
+                                                      cmd.state );
 				}
 				else
 					throw server_exception( "id error!" );
@@ -219,21 +254,24 @@ public:
 			throw server_exception( "state error!" );
 	}
 
-	json event_start_game( std::uint64_t state )
+	json event_start_game( const boost::uuids::uuid &uuid1, const boost::uuids::uuid &uuid2, std::uint64_t state )
 	{
 		if( state == 1 )
 		{
-			auto uuid = boost::uuids::random_generator()();
+			if( ( sessions.count( uuid1 ) < 1 ) && ( sessions.count( uuid2 ) < 1 ) )
+                throw server_exception( "Sessions not found" );
 
-			BOOST_LOG_TRIVIAL( debug ) << "Generate game: " << uuid;
+			sessions[ uuid1 ] = std::chrono::steady_clock::now();
+            sessions[ uuid2 ] = std::chrono::steady_clock::now();
 
-			sessions[ uuid ] = std::chrono::steady_clock::now();
+            game new_game( uuid1, uuid2 );
 
 			return { { "command",
 							 {
 									 { "id", 1 },
 									 { "state", 2 },
-									 { "uuid", boost::uuids::to_string( uuid ) }
+									 { "game_uuid", boost::uuids::to_string( new_game.uuid ) },
+                                     { "field", new_game.field_string() }
 							 } } };
 		} else
 			throw server_exception( "state error!" );
@@ -250,6 +288,8 @@ protected:
 	HttpServer http_server;
 
 	std::map< boost::uuids::uuid, std::chrono::steady_clock::time_point > sessions;
+	std::map< boost::uuids::uuid, game > games;
+
 
 	std::thread sessions_check;
 	std::thread server_thread;

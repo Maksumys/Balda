@@ -19,7 +19,7 @@ window.onload = function () {
         }
     } );
 
-    new Vue( {
+    new Vue({
         el: '#run_game',
 
         methods: {
