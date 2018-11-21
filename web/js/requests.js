@@ -25,7 +25,6 @@ window.onload = function () {
         methods: {
             runGame: function (event) {
                 var req = {command: {id: 2, state: 1, uuid1: this.$refs.my_uuid, uuid2: this.$refs.my_uuid }};
-
                 var uuid_game;
 
                 axios.post('/', req).then(
@@ -42,7 +41,16 @@ window.onload = function () {
                     }});
                 // отображает таймер и клетки игры, все остальное скрываем или вообще другую
                 // страницу открываем, хз
+				
             }
         }
     });
+
+	//скрывать блоки
+	new Vue({
+	el: '#app',
+	data: {
+			isNinja: true
+		}
+	});
 };
