@@ -149,7 +149,7 @@ public:
 							++session;
 					}
 				}
-				std::this_thread::sleep_for( 10000ms );
+				std::this_thread::sleep_for( 1000ms );
 			}
 		} );
 
@@ -183,7 +183,7 @@ public:
 							++game;
 					}
 				}
-				std::this_thread::sleep_for( 10000ms );
+				std::this_thread::sleep_for( 1000ms );
 			}
 		} );
 
@@ -285,6 +285,7 @@ public:
 
 		boost::asio::post(pool, [ & ]( ) {
 			http_server.start();
+			exit = true;
 		});
 	}
 
@@ -333,7 +334,6 @@ public:
 
 	~server()
 	{
-		exit = true;
 		pool.join();
 	}
 
