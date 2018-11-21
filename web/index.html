@@ -21,20 +21,18 @@
 	</head>
 
     <body>
-
+	<div id ="app">
 	<h1 id="my_uuid" ref="my_uuid" data-shadow=""> {{ info }} </h1>
 
-	<input type="text" id="log" size="40">
-
+	<div v-show="isNinja"><input type="text" id="log" size="40">
 
 	<div id="run_game">
 	    <a @click="runGame">Run game!</a>
+	</div>
+
     </div>
 
-	<!-- OTHER PAGE ? -->
-
-	<!--	<div id="log"></div>
-		<div id="game">
+	<div v-show="!isNinja">
 	   <div id="timer">
             <div id="minute">
                 1
@@ -84,6 +82,8 @@
             <div id="kletka"></div>
 	    </div>
 
-		</div> -->
+		</div>
+		<button v-on:click="isNinja = !isNinja">Toggle Ninja Skills</button>
+	</div>
     </body>
 </html>
